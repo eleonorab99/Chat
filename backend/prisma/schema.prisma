@@ -1,3 +1,9 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,136 +14,31 @@ datasource db {
 }
 
 model User {
-  id                   Int              @id @default(autoincrement())
-  firstname            String?          @db.VarChar(10)
-  lastname             String?          @db.VarChar(10)
-  username             String           @unique
-  email                String           @unique
-  password             String
-  avatar               String?
-  status               UserStatus?      @default(OFFLINE)
-  createdAt            DateTime         @default(now())
-  updatedAt            DateTime         @updatedAt
-  channelMessages      ChannelMessage[]
-  receivedMessages     DirectMessage[]  @relation("ReceivedMessages")
-  sentMessages         DirectMessage[]  @relation("SentMessages")
-  friendshipsReceived  Friendship[]     @relation("FriendFriendships")
-  friendshipsInitiated Friendship[]     @relation("UserFriendships")
-  serverMemberships    ServerMember[]
-  ownedServers         Server[]
-
-  @@map("users")
-}
-
-model Server {
-  id        Int            @id @default(autoincrement())
-  name      String
-  icon      String?
-  ownerId   Int
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  channels  Channel[]
-  members   ServerMember[]
-  owner     User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-
-  @@index([ownerId])
-  @@map("servers")
-}
-
-model Channel {
-  id        Int              @id @default(autoincrement())
-  name      String
-  serverId  Int
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-  text      Boolean          @default(false)
-  video     Boolean          @default(false)
-  voice     Boolean          @default(false)
-  messages  ChannelMessage[]
-  server    Server           @relation(fields: [serverId], references: [id], onDelete: Cascade)
-
-  @@index([serverId])
-  @@map("channels")
-}
-
-model ServerMember {
-  id       Int        @id @default(autoincrement())
-  userId   Int
-  serverId Int
-  role     MemberRole @default(MEMBER)
-  nickname String?
-  joinedAt DateTime   @default(now())
-  server   Server     @relation(fields: [serverId], references: [id], onDelete: Cascade)
-  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, serverId])
-  @@index([userId])
-  @@index([serverId])
-  @@map("server_members")
-}
-
-model DirectMessage {
-  id         Int      @id @default(autoincrement())
-  content    String   @db.Text
-  senderId   Int
-  receiverId Int
-  read       Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
-  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
-
-  @@index([senderId])
-  @@index([receiverId])
-  @@map("direct_messages")
-}
-
-model ChannelMessage {
   id        Int      @id @default(autoincrement())
-  content   String   @db.Text
-  userId    Int
-  channelId Int
+  email     String   @unique
+  password  String
+  username  String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
-  @@index([channelId])
-  @@map("channel_messages")
+  // Relazioni
+  sentMessages Message[] @relation("Sender")
+  receivedMessages Message[] @relation("Receiver")
 }
 
-model Friendship {
-  id        Int              @id @default(autoincrement())
-  userId    Int
-  friendId  Int
-  status    FriendshipStatus @default(PENDING)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-  friend    User             @relation("FriendFriendships", fields: [friendId], references: [id], onDelete: Cascade)
-  user      User             @relation("UserFriendships", fields: [userId], references: [id], onDelete: Cascade)
+model Message {
+  id         Int      @id @default(autoincrement())
+  content    String
+  senderId   Int
+  receiverId Int? // ID del destinatario (opzionale per supportare chat di gruppo in futuro)
+  fileUrl     String?
+  fileSize Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  @@unique([userId, friendId])
-  @@index([userId])
-  @@index([friendId])
-  @@map("friendships")
-}
+  @@map("messages")
 
-enum FriendshipStatus {
-  PENDING
-  ACCEPTED
-  BLOCKED
-}
-
-enum MemberRole {
-  ADMIN
-  MODERATOR
-  MEMBER
-}
-
-enum UserStatus {
-  ONLINE
-  OFFLINE
-  AWAY
-  DO_NOT_DISTURB
+  // Relazioni
+  sender   User @relation("Sender", fields: [senderId], references: [id])
+  receiver User? @relation("Receiver", fields: [receiverId], references: [id])
 }

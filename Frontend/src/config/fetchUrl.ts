@@ -3,4 +3,5 @@ const serverConfig = {
   basePort: "8080",
   baseRest: "/api",
 };
+
 export default serverConfig;

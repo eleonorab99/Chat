@@ -1,54 +1,54 @@
-import handleResponse from "./utils";
+import { api } from "../api";
+
 interface AuthResponse {
-  token?: string;
-  user?: {
+  user: {
     id: number;
     username: string;
     email: string;
   };
-  message: string;
+  token: string;
 }
+
+interface RegisterData {
+  username: string;
+  email: string;
+  password: string;
+}
+
+interface LoginData {
+  email: string;
+  password: string;
+}
+
 const authService = {
-  register: async (userData: {
-    username: string;
-    email: string;
-    password: string;
-  }): Promise<AuthResponse> => {
-    const response = await fetch("/api/account/register", {
+  register: async (userData: RegisterData): Promise<AuthResponse> => {
+    return api<AuthResponse>("/account/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userData),
     });
-    return handleResponse(response);
   },
 
-  login: async (credentials: {
-    email: string;
-    password: string;
-  }): Promise<AuthResponse> => {
-    const response = await fetch("/api/account/login", {
+  login: async (credentials: LoginData): Promise<AuthResponse> => {
+    return api<AuthResponse>("/account/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),
     });
-    return handleResponse(response);
   },
 
-  resetPassword: async (email: string): Promise<AuthResponse> => {
-    const response = await fetch("/api/account/reset-password", {
+  resetPassword: async (email: string): Promise<{ message: string }> => {
+    return api<{ message: string }>("/account/reset-password", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     });
-    return handleResponse(response);
   },
 
-  logout: async (): Promise<AuthResponse> => {
-    const response = await fetch("/api/account/logout", {
-      method: "POST",
-    });
-    return handleResponse(response);
+  logout: async (): Promise<void> => {
+    return api<void>("/account/logout", { method: "POST" });
   },
+  
+  getCurrentUser: async () => {
+    return api("/account/me");
+  }
 };
 
 export default authService;

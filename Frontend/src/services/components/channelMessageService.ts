@@ -1,22 +1,31 @@
 import { ChannelMessage } from "../../context/types";
-import handleResponse from "./utils";
+import { api } from "../api";
 
 const channelMessageService = {
   getMessages: async (channelId: number): Promise<ChannelMessage[]> => {
-    const response = await fetch(`/api/channels/${channelId}/messages`);
-    return handleResponse(response);
+    return api<ChannelMessage[]>(`/channels/${channelId}/messages`);
   },
 
   sendMessage: async (
     channelId: number,
     content: string
   ): Promise<ChannelMessage> => {
-    const response = await fetch(`/api/channels/${channelId}/messages`, {
+    return api<ChannelMessage>(`/channels/${channelId}/messages`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ content }),
     });
-    return handleResponse(response);
   },
+  
+  uploadFile: async (channelId: number, file: File): Promise<ChannelMessage> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return api<ChannelMessage>(`/channels/${channelId}/messages/upload`, {
+      method: "POST",
+      body: formData,
+      headers: {} // Rimuove Content-Type per consentire al browser di impostarlo con il boundary
+    });
+  }
 };
+
 export default channelMessageService;

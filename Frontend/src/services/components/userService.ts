@@ -1,27 +1,33 @@
-import { User, Friendship } from "../../context/types";
-import handleResponse from "./utils";
+import { User } from "../../context/types";
+import { api } from "../api";
+
 const userService = {
-  getFriends: async (): Promise<User[]> => {
-    const response = await fetch("/api/friends");
-    return handleResponse(response);
+  searchUsers: async (query: string, currentUserId: number): Promise<{ success: boolean, data: User[], message?: string }> => {
+    return api<{ success: boolean, data: User[], message?: string }>(`/users/search?query=${encodeURIComponent(query)}&exclude=${currentUserId}`);
   },
-
-  getFriendRequests: async (): Promise<Friendship[]> => {
-    const response = await fetch("/api/friends/requests");
-    return handleResponse(response);
+  
+  getUserProfile: async (userId: number): Promise<User> => {
+    return api<User>(`/users/${userId}`);
   },
-
-  acceptFriendRequest: async (friendshipId: number): Promise<Friendship> => {
-    const response = await fetch(`/api/friends/accept/${friendshipId}`, {
+  
+  updateProfile: async (userData: Partial<User>): Promise<User> => {
+    return api<User>("/users/profile", {
       method: "PUT",
+      body: JSON.stringify(userData)
     });
-    return handleResponse(response);
   },
-
-  searchUsers: async (query: string, currentUserId: number) => {
-    const res = await fetch(`/api/users/search?query=${encodeURIComponent(query)}&exclude=${currentUserId}`);
-    return await res.json();
-  },
+  
+  uploadAvatar: async (avatar: File): Promise<{ avatarUrl: string }> => {
+    const formData = new FormData();
+    formData.append('avatar', avatar);
+    
+    return api<{ avatarUrl: string }>("/users/avatar", {
+      method: "POST",
+      body: formData,
+      headers: {}
+    });
+  }
 };
 
 export default userService;
+
