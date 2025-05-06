@@ -22,7 +22,8 @@ export default function RegistrationForm() {
 
   const [error, setError] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
   const navigate = useNavigate();
 
   const togglePasswordVisibility = (): void => {

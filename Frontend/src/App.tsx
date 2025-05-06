@@ -3,13 +3,13 @@ import Dashboard from "./pages/Dashboard";
 import ResetPassword from "./pages/ResetPasswordPage";
 import ProfilePage from "./Components/ProfilePage/ProfilePage";
 import NotFound404Paged from "./pages/notFound";
-import Profile from './pages/Profile';
+import Profile from "./pages/Profile";
 import ThemeProvider from "../src/customizations/Theme";
 import Layout from "../src/customizations/Layout";
 import { AppWrapper } from "../src/styled/DashboardStyled";
 import PaginaImpostazioni from "./pages/Settings";
 import LoginPages from "./pages/LoginPages";
-import Registration from "./pages/RegistrationPage";
+import Register from "./pages/RegistrationPage";
 import Amici from "./pages/Amici";
 
 function App() {
@@ -21,7 +21,7 @@ function App() {
             {/* Pagine senza layout (login, registrazione, ecc.) */}
             <Route path="/login" element={<LoginPages />} />
             <Route path="/resetpassword" element={<ResetPassword />} />
-            <Route path="/registration" element={<Registration />} />
+            <Route path="/register" element={<Register />} />
             {/* Pagine con layout (dashboard, profilo, ecc.) */}
             <Route
               path="/dashboard"

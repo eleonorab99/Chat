@@ -22,7 +22,7 @@ interface LoginData {
 
 const authService = {
   register: async (userData: RegisterData): Promise<AuthResponse> => {
-    return api<AuthResponse>("/account/register", {
+    return api<AuthResponse>("/register", {
       method: "POST",
       body: JSON.stringify(userData),
     });
@@ -45,10 +45,10 @@ const authService = {
   logout: async (): Promise<void> => {
     return api<void>("/account/logout", { method: "POST" });
   },
-  
+
   getCurrentUser: async () => {
     return api("/account/me");
-  }
+  },
 };
 
 export default authService;
